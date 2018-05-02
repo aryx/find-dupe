@@ -20,14 +20,11 @@ let main () =
   let dir1 = Filename.concat home "Downloads" in
   let other_dirs = Filename.concat home "Dropbox" in
 
-  let files = 
-    Common.cmd_to_list (spf "find %s -type f" dir1) in
-  let hfiles = files |> List.map (fun file -> signature file, file)
-  |> Common.hash_of_list in
+  let files = Common.cmd_to_list (spf "find %s -type f" dir1) in
+  let files_and_sig = files |> List.map (fun file -> file, signature file) in
   pr2 (spf "Done scanning %s" dir1);
 
-  let other_files = 
-    Common.cmd_to_list (spf "find %s -type f" other_dirs) in
+  let other_files = Common.cmd_to_list (spf "find %s -type f" other_dirs) in
   (* use the Hashtbl.find_all property *)
   let hother_size = Hashtbl.create 1001 in
 
@@ -38,9 +35,9 @@ let main () =
       
   pr2 (spf "Done scanning %s" other_dirs);
   
-  hfiles |> Hashtbl.iter (fun k file ->
+  files_and_sig |> List.iter (fun (file, k) ->
     let size = Common2.filesize file in
-    if Hashtbl.mem hother_size size && size > 10000
+    if Hashtbl.mem hother_size size && size > 5000
     then begin 
       let candidates = Hashtbl.find_all hother_size size in
       match candidates |> Common.find_some_opt (fun candidate ->
