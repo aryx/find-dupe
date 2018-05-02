@@ -2,7 +2,7 @@ open Common
 
 let signatures files = 
   files |> List.map (fun file ->
-    match Common.cmd_to_list (spf "md5sum \"%s\"" file) with
+    match Common.cmd_to_list (spf "md5sum %s" (Filename.quote file)) with
     | [x] -> 
       if x =~ "^\\([0-9a-f]+\\) .*$"
       then Common.matched1 x, file
@@ -16,7 +16,7 @@ let ask_delete dupe orig =
 
 let main () =
   (* CONFIG ! *)
-  let home = "/home/pad" in
+  let home = "/Users/luisa" in
   let dir1 = Filename.concat home "Downloads" in
   let other_dirs = Filename.concat home "Documents" in
 
