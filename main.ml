@@ -11,12 +11,14 @@ let signatures files =
   )
 
 let ask_delete dupe orig =
-  pr2 (spf "file %s is the same than %s" dupe orig);
+  pr2 (spf "file %s\n =   %s" dupe orig);
   ()
 
 let main () =
-  let dir1 = "/home/pad/Downloads/" in
-  let other_dirs = "/home/pad/Documents/" in
+  (* CONFIG ! *)
+  let home = "/home/pad" in
+  let dir1 = Filename.concat home "Downloads" in
+  let other_dirs = Filename.concat home "Documents" in
 
   let files = 
     Common.cmd_to_list (spf "find %s -type f" dir1) in
