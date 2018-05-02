@@ -10,7 +10,8 @@ let signature file =
   
 
 let ask_delete dupe orig =
-  pr2 (spf "file %s\n =   %s" dupe orig);
+  pr (spf "file %s\n =   %s" dupe orig);
+  Common2.command2_y_or_no (spf "rm -f %s" (Filename.quote dupe)) |> ignore;
   ()
 
 let main () =
@@ -39,7 +40,7 @@ let main () =
   
   hfiles |> Hashtbl.iter (fun k file ->
     let size = Common2.filesize file in
-    if Hashtbl.mem hother_size size && size > 100000
+    if Hashtbl.mem hother_size size && size > 10000
     then begin 
       let candidates = Hashtbl.find_all hother_size size in
       match candidates |> Common.find_some_opt (fun candidate ->
