@@ -1,13 +1,15 @@
 open Common
 
 let signature file = 
+  Digest.file file |> Digest.to_hex
+(*
   match Common.cmd_to_list (spf "md5sum %s" (Filename.quote file)) with
   | [x] -> 
     if x =~ "^\\([0-9a-f]+\\) .*$"
     then Common.matched1 x
     else failwith (spf "not a md5sum signature %s for %s" x file)
   | _ -> failwith (spf "could not get signature for %s" file)
-  
+*)  
 
 let ask_delete dupe orig =
   pr (spf "file %s\n =   %s" dupe orig);
@@ -15,10 +17,12 @@ let ask_delete dupe orig =
   ()
 
 let main () =
-  (* CONFIG ! *)
-  let home = "/Users/luisa" in
-  let dir1 = Filename.concat home "Downloads" in
-  let other_dirs = Filename.concat home "Dropbox" in
+  let dir1, other_dirs =
+    match Array.to_list Sys.argv with
+    | _::dir1::dir2::xs ->
+      dir1, String.concat " " (dir2::xs)
+    | _ -> failwith "usage: find-dupe <dir with suspected dupe> <base dirs...>"
+  in
 
   let files = Common.cmd_to_list (spf "find %s -type f" dir1) in
   let files_and_sig = files |> List.map (fun file -> file, signature file) in
@@ -37,7 +41,7 @@ let main () =
   
   files_and_sig |> List.iter (fun (file, k) ->
     let size = Common2.filesize file in
-    if Hashtbl.mem hother_size size && size > 5000
+    if Hashtbl.mem hother_size size (* CONFIG  && size > 5000 *)
     then begin 
       let candidates = Hashtbl.find_all hother_size size in
       match candidates |> Common.find_some_opt (fun candidate ->
